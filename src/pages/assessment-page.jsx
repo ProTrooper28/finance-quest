@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { ArrowLeft, ArrowRight, SkipForward } from "lucide-react";
 
 import { QuestionCard } from "@/components/assessment/question-card";
-import { Button } from "@/components/ui/button";
 import { useAssessmentContext } from "@/hooks/assessment-context";
 
 const ease = [0.23, 0.86, 0.44, 1];
@@ -29,10 +28,10 @@ export function AssessmentPage() {
   return (
     <div>
       <div className="flex items-center justify-between text-xs">
-        <span className="tnum font-medium text-muted-foreground">
-          Question <span className="text-foreground">{step + 1}</span> of {total}
+        <span className="tnum font-medium text-white/60">
+          Question <span className="text-white">{step + 1}</span> of {total}
         </span>
-        <span className="tnum text-muted-foreground">{progress}%</span>
+        <span className="tnum text-white/60">{progress}%</span>
       </div>
 
       <div className="relative mt-8 min-h-[320px]">
@@ -50,18 +49,18 @@ export function AssessmentPage() {
       </div>
 
       <div className="mt-10 flex items-center justify-between gap-3">
-        <Button variant="ghost" size="sm" onClick={back} disabled={step === 0}>
-          <ArrowLeft /> Back
-        </Button>
+        <button type="button" className="glass-pill" onClick={back} disabled={step === 0}>
+          <ArrowLeft className="size-4" /> Back
+        </button>
         <div className="flex items-center gap-2">
           {!answeredCurrent ? (
-            <Button variant="ghost" size="sm" onClick={skip}>
-              Skip <SkipForward />
-            </Button>
+            <button type="button" className="glass-pill" onClick={skip}>
+              Skip <SkipForward className="size-4" />
+            </button>
           ) : null}
-          <Button onClick={handleNext} disabled={!answeredCurrent}>
-            {isLast ? "Finish" : "Next"} <ArrowRight />
-          </Button>
+          <button type="button" className="white-pill" onClick={handleNext} disabled={!answeredCurrent}>
+            {isLast ? "Finish" : "Next"} <ArrowRight className="size-4" />
+          </button>
         </div>
       </div>
     </div>

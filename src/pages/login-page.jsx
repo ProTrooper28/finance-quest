@@ -49,7 +49,7 @@ export function LoginPage() {
       footer={
         <p>
           New to FinQuest?{" "}
-          <Link to="/signup" className="font-medium text-blue-400 transition hover:text-blue-300">
+          <Link to="/signup" className="font-semibold text-white underline-offset-4 transition hover:underline">
             Create an account
           </Link>
         </p>
@@ -86,7 +86,7 @@ export function LoginPage() {
           Remember me
         </label>
 
-        <Button type="submit" size="lg" className="w-full bg-brand-duo font-medium hover:opacity-90" disabled={form.formState.isSubmitting || pending}>
+        <Button type="submit" size="lg" className="w-full" disabled={form.formState.isSubmitting || pending}>
           {(form.formState.isSubmitting || pending) && <Loader2 className="animate-spin" />}
           Login
         </Button>
@@ -100,9 +100,9 @@ export function LoginPage() {
 
       <div className="space-y-2.5">
         <GoogleButton label="Continue with Google" />
-        <Button type="button" variant="outline" size="lg" className="w-full border-white/15 bg-white/[0.03] font-medium text-white/85 hover:bg-white/[0.07] hover:text-white" onClick={onGuestLogin}>
+        <button type="button" className="glass-pill !h-[46px] w-full" onClick={onGuestLogin}>
           Guest Login
-        </Button>
+        </button>
         <p className="text-center text-xs text-white/35">Guest login skips the forms — straight to the assessment.</p>
       </div>
     </AuthLayout>

@@ -98,16 +98,16 @@ export function SignupPage() {
       </form>
 
       <div className="my-6 flex items-center gap-3">
-        <span className="h-px flex-1 bg-border" />
-        <span className="text-xs text-muted-foreground">or</span>
-        <span className="h-px flex-1 bg-border" />
+        <span className="h-px flex-1 bg-white/10" />
+        <span className="text-xs text-white/40">or</span>
+        <span className="h-px flex-1 bg-white/10" />
       </div>
 
       <GoogleButton label="Sign up with Google" />
 
-      <p className="mt-8 text-center text-sm text-muted-foreground">
+      <p className="mt-8 text-center text-sm text-white/55">
         Already have an account?{" "}
-        <Link to="/login" className="font-medium text-primary hover:underline">
+        <Link to="/login" className="font-semibold text-white hover:underline">
           Sign in
         </Link>
       </p>

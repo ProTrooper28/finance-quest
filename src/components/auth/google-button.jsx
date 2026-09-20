@@ -13,7 +13,7 @@ export function GoogleButton({ label = "Continue with Google" }) {
       type="button"
       variant="secondary"
       size="lg"
-      className="w-full"
+      className="glass-pill !h-[46px] w-full"
       disabled={pending}
       onClick={() =>
         toast("Google sign-in coming soon", {
