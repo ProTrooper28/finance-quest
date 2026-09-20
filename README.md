@@ -1,4 +1,5 @@
-# Finance Quest
+# Finance Quest 
+AI-powered gamified financial literacy platform.
 
 Build a modern, premium, AI-powered gamified financial literacy platform called "FinQuest" (replace with final app name if needed).
 
