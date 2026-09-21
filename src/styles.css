@@ -315,3 +315,59 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------- Globe video backdrop + glass UI (login, signup, assessment) ---------- */
+.gb { position: fixed; inset: 0; overflow: hidden; background: #000; z-index: 0; }
+.gb-stage {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: max(100vw, calc(100dvh * 1.6)); height: max(62.5vw, 100dvh); background: #000;
+}
+.gb-video {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 51% 8%;
+  display: block; background: #000; pointer-events: none; opacity: 0; transition: opacity 0.9s linear;
+}
+.gb-video.is-active { opacity: 1; }
+.gb-scrim {
+  position: absolute; inset: 0;
+  background: radial-gradient(70% 60% at 50% 50%, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.2) 70%, rgba(0, 0, 0, 0.5));
+}
+
+.globe-ui { font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-rendering: geometricPrecision; }
+.globe-ui label { color: #ededed; }
+.globe-ui input:not([type="checkbox"]) {
+  height: 46px; border-radius: 14px; background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1); color: #fff;
+}
+.globe-ui input:not([type="checkbox"])::placeholder { color: rgba(255, 255, 255, 0.35); }
+.globe-ui input:not([type="checkbox"]):hover { border-color: rgba(255, 255, 255, 0.2); }
+.globe-ui input:not([type="checkbox"]):focus-visible {
+  border-color: #a78bfa; box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2); outline: none;
+}
+.globe-ui button[type="submit"] {
+  height: 46px; border-radius: 999px; background: #fdfdfd; background-image: none; color: #050505;
+  font-weight: 600; transition: background 0.18s ease;
+}
+.globe-ui button[type="submit"]:hover:not(:disabled) { background: #fff; }
+.globe-ui a:focus-visible, .globe-ui button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 3px; }
+
+.glass-pill {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap;
+  height: 40px; padding: 0 18px; border-radius: 999px; font-size: 14px; font-weight: 500; color: #d9d9d9;
+  background: rgba(0, 0, 0, 0.78); border: 1px solid rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(2px); transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+.glass-pill:hover:not(:disabled) { background: rgba(0, 0, 0, 0.66); border-color: rgba(255, 255, 255, 0.16); color: #fff; }
+.glass-pill:disabled { opacity: 0.4; cursor: not-allowed; }
+.white-pill {
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px; white-space: nowrap;
+  height: 44px; padding: 0 22px; border-radius: 999px; font-size: 14px; font-weight: 600;
+  background: #fdfdfd; color: #050505; transition: background 0.18s ease, opacity 0.18s ease;
+}
+.white-pill:hover:not(:disabled) { background: #fff; }
+.white-pill:disabled { opacity: 0.4; cursor: not-allowed; }
+.glass-panel {
+  background: rgba(8, 8, 12, 0.62); border: 1px solid rgba(255, 255, 255, 0.09);
+  -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+@media (prefers-reduced-motion: reduce) { .gb-video { transition: none; } }
