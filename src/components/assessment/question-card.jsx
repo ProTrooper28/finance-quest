@@ -26,7 +26,7 @@ export function QuestionCard({ question, value, onChange }) {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease }}
-        className="text-2xl font-medium tracking-[-0.02em] text-white md:text-3xl"
+        className="text-xl font-semibold tracking-tight md:text-2xl"
       >
         {question.label}
       </motion.h2>
@@ -36,7 +36,7 @@ export function QuestionCard({ question, value, onChange }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.05 }}
-          className="mt-2 text-[15px] font-light text-white/65"
+          className="mt-2 text-sm text-muted-foreground"
         >
           {question.helper}
         </motion.p>

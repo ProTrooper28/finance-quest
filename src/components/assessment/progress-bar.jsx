@@ -24,9 +24,9 @@ export function ProgressBar({ value, className, showLabel = true }) {
 
 export function ProgressBarCompact({ value, className }) {
   return (
-    <div className={cn("h-1.5 overflow-hidden rounded-full bg-white/10", className)}>
+    <div className={cn("h-1.5 overflow-hidden rounded-full bg-muted", className)}>
       <motion.div
-        className="h-full rounded-full bg-white"
+        className="h-full rounded-full bg-brand"
         initial={false}
         animate={{ width: `${Math.max(0, Math.min(100, value))}%` }}
         transition={{ duration: 0.4 }}
