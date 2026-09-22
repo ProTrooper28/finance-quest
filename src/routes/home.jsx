@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
-import { HomePage } from "@/pages/home-page";
-
+/** Legacy entry — the app shell dashboard replaced the three-card home. */
 export const Route = createFileRoute("/home")({
-  component: HomePage,
-  staticData: { title: "FinQuest" },
+  beforeLoad: () => {
+    throw redirect({ to: "/dashboard", replace: true });
+  },
 });

@@ -10,16 +10,32 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AchievementsRouteImport } from './routes/achievements'
 import { Route as AnalysisRouteImport } from './routes/analysis'
 import { Route as AssessmentRouteImport } from './routes/assessment'
+import { Route as BudgetPlannerRouteImport } from './routes/budget-planner'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as FraudLabRouteImport } from './routes/fraud-lab'
 import { Route as HomeRouteImport } from './routes/home'
+import { Route as LearnRouteImport } from './routes/learn'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MarketRouteImport } from './routes/market'
+import { Route as MentorRouteImport } from './routes/mentor'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as ResultRouteImport } from './routes/result'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SimulationsRouteImport } from './routes/simulations'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AchievementsRoute = AchievementsRouteImport.update({
+  id: '/achievements',
+  path: '/achievements',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnalysisRoute = AnalysisRouteImport.update({
@@ -32,9 +48,29 @@ const AssessmentRoute = AssessmentRouteImport.update({
   path: '/assessment',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BudgetPlannerRoute = BudgetPlannerRouteImport.update({
+  id: '/budget-planner',
+  path: '/budget-planner',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FraudLabRoute = FraudLabRouteImport.update({
+  id: '/fraud-lab',
+  path: '/fraud-lab',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HomeRoute = HomeRouteImport.update({
   id: '/home',
   path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnRoute = LearnRouteImport.update({
+  id: '/learn',
+  path: '/learn',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -42,9 +78,34 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarketRoute = MarketRouteImport.update({
+  id: '/market',
+  path: '/market',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MentorRoute = MentorRouteImport.update({
+  id: '/mentor',
+  path: '/mentor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgressRoute = ProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResultRoute = ResultRouteImport.update({
   id: '/result',
   path: '/result',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignupRoute = SignupRouteImport.update({
@@ -52,73 +113,155 @@ const SignupRoute = SignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SimulationsRoute = SimulationsRouteImport.update({
+  id: '/simulations',
+  path: '/simulations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/achievements': typeof AchievementsRoute
   '/analysis': typeof AnalysisRoute
   '/assessment': typeof AssessmentRoute
+  '/budget-planner': typeof BudgetPlannerRoute
+  '/dashboard': typeof DashboardRoute
+  '/fraud-lab': typeof FraudLabRoute
   '/home': typeof HomeRoute
+  '/learn': typeof LearnRoute
   '/login': typeof LoginRoute
+  '/market': typeof MarketRoute
+  '/mentor': typeof MentorRoute
+  '/profile': typeof ProfileRoute
+  '/progress': typeof ProgressRoute
   '/result': typeof ResultRoute
+  '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/simulations': typeof SimulationsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/achievements': typeof AchievementsRoute
   '/analysis': typeof AnalysisRoute
   '/assessment': typeof AssessmentRoute
+  '/budget-planner': typeof BudgetPlannerRoute
+  '/dashboard': typeof DashboardRoute
+  '/fraud-lab': typeof FraudLabRoute
   '/home': typeof HomeRoute
+  '/learn': typeof LearnRoute
   '/login': typeof LoginRoute
+  '/market': typeof MarketRoute
+  '/mentor': typeof MentorRoute
+  '/profile': typeof ProfileRoute
+  '/progress': typeof ProgressRoute
   '/result': typeof ResultRoute
+  '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/simulations': typeof SimulationsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/achievements': typeof AchievementsRoute
   '/analysis': typeof AnalysisRoute
   '/assessment': typeof AssessmentRoute
+  '/budget-planner': typeof BudgetPlannerRoute
+  '/dashboard': typeof DashboardRoute
+  '/fraud-lab': typeof FraudLabRoute
   '/home': typeof HomeRoute
+  '/learn': typeof LearnRoute
   '/login': typeof LoginRoute
+  '/market': typeof MarketRoute
+  '/mentor': typeof MentorRoute
+  '/profile': typeof ProfileRoute
+  '/progress': typeof ProgressRoute
   '/result': typeof ResultRoute
+  '/settings': typeof SettingsRoute
   '/signup': typeof SignupRoute
+  '/simulations': typeof SimulationsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/achievements'
     | '/analysis'
     | '/assessment'
+    | '/budget-planner'
+    | '/dashboard'
+    | '/fraud-lab'
     | '/home'
+    | '/learn'
     | '/login'
+    | '/market'
+    | '/mentor'
+    | '/profile'
+    | '/progress'
     | '/result'
+    | '/settings'
     | '/signup'
+    | '/simulations'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/achievements'
     | '/analysis'
     | '/assessment'
+    | '/budget-planner'
+    | '/dashboard'
+    | '/fraud-lab'
     | '/home'
+    | '/learn'
     | '/login'
+    | '/market'
+    | '/mentor'
+    | '/profile'
+    | '/progress'
     | '/result'
+    | '/settings'
     | '/signup'
+    | '/simulations'
   id:
     | '__root__'
     | '/'
+    | '/achievements'
     | '/analysis'
     | '/assessment'
+    | '/budget-planner'
+    | '/dashboard'
+    | '/fraud-lab'
     | '/home'
+    | '/learn'
     | '/login'
+    | '/market'
+    | '/mentor'
+    | '/profile'
+    | '/progress'
     | '/result'
+    | '/settings'
     | '/signup'
+    | '/simulations'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AchievementsRoute: typeof AchievementsRoute
   AnalysisRoute: typeof AnalysisRoute
   AssessmentRoute: typeof AssessmentRoute
+  BudgetPlannerRoute: typeof BudgetPlannerRoute
+  DashboardRoute: typeof DashboardRoute
+  FraudLabRoute: typeof FraudLabRoute
   HomeRoute: typeof HomeRoute
+  LearnRoute: typeof LearnRoute
   LoginRoute: typeof LoginRoute
+  MarketRoute: typeof MarketRoute
+  MentorRoute: typeof MentorRoute
+  ProfileRoute: typeof ProfileRoute
+  ProgressRoute: typeof ProgressRoute
   ResultRoute: typeof ResultRoute
+  SettingsRoute: typeof SettingsRoute
   SignupRoute: typeof SignupRoute
+  SimulationsRoute: typeof SimulationsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -128,6 +271,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/achievements': {
+      id: '/achievements'
+      path: '/achievements'
+      fullPath: '/achievements'
+      preLoaderRoute: typeof AchievementsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/analysis': {
@@ -144,11 +294,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssessmentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/budget-planner': {
+      id: '/budget-planner'
+      path: '/budget-planner'
+      fullPath: '/budget-planner'
+      preLoaderRoute: typeof BudgetPlannerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fraud-lab': {
+      id: '/fraud-lab'
+      path: '/fraud-lab'
+      fullPath: '/fraud-lab'
+      preLoaderRoute: typeof FraudLabRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/home': {
       id: '/home'
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn': {
+      id: '/learn'
+      path: '/learn'
+      fullPath: '/learn'
+      preLoaderRoute: typeof LearnRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -158,11 +336,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/market': {
+      id: '/market'
+      path: '/market'
+      fullPath: '/market'
+      preLoaderRoute: typeof MarketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mentor': {
+      id: '/mentor'
+      path: '/mentor'
+      fullPath: '/mentor'
+      preLoaderRoute: typeof MentorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/progress': {
+      id: '/progress'
+      path: '/progress'
+      fullPath: '/progress'
+      preLoaderRoute: typeof ProgressRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/result': {
       id: '/result'
       path: '/result'
       fullPath: '/result'
       preLoaderRoute: typeof ResultRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup': {
@@ -172,17 +385,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/simulations': {
+      id: '/simulations'
+      path: '/simulations'
+      fullPath: '/simulations'
+      preLoaderRoute: typeof SimulationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AchievementsRoute: AchievementsRoute,
   AnalysisRoute: AnalysisRoute,
   AssessmentRoute: AssessmentRoute,
+  BudgetPlannerRoute: BudgetPlannerRoute,
+  DashboardRoute: DashboardRoute,
+  FraudLabRoute: FraudLabRoute,
   HomeRoute: HomeRoute,
+  LearnRoute: LearnRoute,
   LoginRoute: LoginRoute,
+  MarketRoute: MarketRoute,
+  MentorRoute: MentorRoute,
+  ProfileRoute: ProfileRoute,
+  ProgressRoute: ProgressRoute,
   ResultRoute: ResultRoute,
+  SettingsRoute: SettingsRoute,
   SignupRoute: SignupRoute,
+  SimulationsRoute: SimulationsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

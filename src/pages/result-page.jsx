@@ -123,7 +123,7 @@ export function ResultPage() {
         transition={{ duration: 0.45, delay: 0.4, ease }}
         className="mt-12 flex flex-col items-center gap-3"
       >
-        <Button size="xl" className="w-full max-w-xs bg-brand-duo font-medium hover:opacity-90" onClick={() => navigate("/home")}>
+        <Button size="xl" className="w-full max-w-xs bg-brand-duo font-medium hover:opacity-90" onClick={() => navigate("/dashboard")}>
           Start My Journey <ArrowRight />
         </Button>
         <Button

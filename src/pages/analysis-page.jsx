@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "@/utils/router";
 
 import { AiLoader } from "@/components/result/ai-loader";
@@ -12,13 +12,18 @@ export function AnalysisPage() {
   const { progress, stepsDone, done } = useAnalysisAnimation(4500);
   const { finish } = useAssessment();
 
-  /* Compute the result once the animation completes (or on direct visits). */
+  /* Compute the result exactly once when the animation completes (or on
+     direct visits). The navigation timer lives on a ref with unmount-only
+     cleanup so dependency churn can never cancel the handoff. */
+  const finishedRef = useRef(false);
+  const timerRef = useRef(null);
   useEffect(() => {
-    if (!done) return undefined;
+    if (!done || finishedRef.current) return;
+    finishedRef.current = true;
     finish();
-    const t = setTimeout(() => navigate("/result", { replace: true }), NAVIGATE_DELAY_MS);
-    return () => clearTimeout(t);
+    timerRef.current = setTimeout(() => navigate("/result", { replace: true }), NAVIGATE_DELAY_MS);
   }, [done, finish, navigate]);
+  useEffect(() => () => clearTimeout(timerRef.current), []);
 
   return (
     <div className="grid min-h-dvh place-items-center bg-navy px-4">
