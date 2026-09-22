@@ -27,6 +27,31 @@ export const HISTORICAL_REPLAYS = [
 
 export const STAR = { filled: "fill-amber-300 text-amber-300", empty: "text-white/20" };
 
+/* ------------------------------ session setup ----------------------------- */
+
+export const TIME_MODES = [
+  { id: "intraday", name: "Intraday", icon: "Zap", duration: "10–15 min", xp: 300, desc: "One trading day, 09:15 to 15:30. Every tick is a price move." },
+  { id: "weekly", name: "Weekly Simulation", icon: "CalendarRange", duration: "15–20 min", xp: 450, desc: "Mon to Fri. Sector trends and mid-week events shape the tape." },
+  { id: "monthly", name: "Monthly Simulation", icon: "CalendarDays", duration: "20–30 min", xp: 600, desc: "Four weeks of decisions — earnings, dividends and rotations." },
+  { id: "longterm", name: "Long-Term Investor (1 Year)", icon: "TrendingUp", duration: "20–30 min", xp: 800, desc: "Accelerated month-by-month. Jan to Dec wealth building." },
+  { id: "replay", name: "Historical Replay", icon: "History", duration: "10–25 min", xp: 1000, desc: "Re-run a famous market event and trade through it." },
+];
+
+export const INVESTMENT_STYLES = [
+  { id: "day", name: "Day Trader", icon: "Zap", tagline: "Minute-by-minute price movement, frequent news, high volatility, fast decisions." },
+  { id: "swing", name: "Swing Trader", icon: "CalendarRange", tagline: "Hold for several days. Medium volatility, company events and sector trends." },
+  { id: "investor", name: "Long-Term Investor", icon: "TrendingUp", tagline: "Monthly progression — earnings, budgets, dividends and wealth creation." },
+  { id: "learning", name: "Learning Mode", icon: "GraduationCap", tagline: "AI pauses after every major event, explains why prices moved and hints before decisions. Best for beginners." },
+];
+
+export const LOADING_STEPS = [
+  "Loading Market Data",
+  "Initializing Economy",
+  "Loading Companies",
+  "Connecting AI Mentor",
+  "Preparing Challenges",
+];
+
 export const UNIVERSE = [
   { sym: "RELIANCE", name: "Reliance Industries", sector: "Energy", base: 2934, risk: 45, volatility: 0.9 },
   { sym: "TCS", name: "Tata Consultancy", sector: "IT", base: 3891, risk: 30, volatility: 0.8 },
@@ -83,6 +108,9 @@ export const MISSIONS = [
   { id: "m-profit", title: "Earn 5% portfolio profit", target: 5, metric: "profitPct", xp: 400, coins: 100 },
   { id: "m-beat-nifty", title: "Beat the NIFTY", target: 1, metric: "beatNifty", xp: 500, coins: 100 },
   { id: "m-first", title: "Place your first trade", target: 1, metric: "trades", xp: 100, coins: 25 },
+  { id: "m-survive-crash", title: "Protect capital during a crash", target: 1, metric: "crashSurvived", xp: 350, coins: 80 },
+  { id: "m-earnings", title: "Invest after an earnings report", target: 1, metric: "earningsBuys", xp: 250, coins: 60 },
+  { id: "m-low-risk", title: "Keep portfolio risk below 45", target: 1, metric: "lowRisk", xp: 300, coins: 70 },
 ];
 
 export const ACHIEVEMENTS = [

@@ -136,9 +136,12 @@ export function PortfolioPanel({ sim }) {
       {/* Holdings */}
       <section className="card-surface overflow-hidden xl:col-span-3">
         <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
-          <h3 className="text-[14px] font-semibold tracking-tight text-foreground">Holdings</h3>
+          <h3 className="text-[14px] font-semibold tracking-tight text-foreground">Open positions</h3>
           <p className="tnum text-[12px] text-muted-foreground">
-            {holdings.length} position{holdings.length === 1 ? "" : "s"} · Cash {fmtIN(cash)}
+            {holdings.length} position{holdings.length === 1 ? "" : "s"} · Cash {fmtIN(cash)} · Realized P/L {""}
+            <span className={cn("font-semibold", (sim.realized ?? 0) >= 0 ? "text-emerald-400" : "text-red-400")}>
+              {(sim.realized ?? 0) >= 0 ? "+" : "−"}{fmtIN(Math.abs(sim.realized ?? 0))}
+            </span>
           </p>
         </div>
         {holdings.length === 0 ? (
@@ -162,7 +165,7 @@ export function PortfolioPanel({ sim }) {
                   <Cell2 label="Current" value={`₹${fmt(price)}`} />
                   <Cell2 label="Value" value={fmtIN(value)} />
                   <div className="text-right">
-                    <p className="text-[10.5px] text-muted-foreground">P/L</p>
+                    <p className="text-[10.5px] text-muted-foreground">Unrealized P/L</p>
                     <p className={cn("tnum text-[13.5px] font-semibold", pnl >= 0 ? "text-emerald-400" : "text-red-400")}>
                       {pnl >= 0 ? "+" : "−"}{fmtIN(Math.abs(pnl))} ({pnlPct >= 0 ? "+" : ""}{pnlPct.toFixed(1)}%)
                     </p>
@@ -172,6 +175,56 @@ export function PortfolioPanel({ sim }) {
             })}
           </div>
         )}
+      </section>
+
+      {/* Closed positions / investment history */}
+      <section className="card-surface overflow-hidden xl:col-span-3">
+        <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
+          <h3 className="text-[14px] font-semibold tracking-tight text-foreground">Investment history</h3>
+          <p className="tnum text-[12px] text-muted-foreground">{sim.tradeLog?.length ?? 0} trades this session</p>
+        </div>
+        <div className="grid gap-0 md:grid-cols-2 md:divide-x md:divide-border">
+          <div>
+            <p className="px-5 pt-3.5 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">Closed positions</p>
+            {(sim.closedPositions ?? []).length === 0 ? (
+              <p className="px-5 py-6 text-[12.5px] text-muted-foreground">No closed positions yet — sell to book a profit or loss.</p>
+            ) : (
+              <ul className="divide-y divide-border">
+                {(sim.closedPositions ?? []).slice(0, 6).map((p, i) => (
+                  <li key={`${p.sym}-${i}`} className="flex items-center gap-3 px-5 py-2.5">
+                    <span className="w-20 text-[12.5px] font-semibold text-foreground">{p.sym}</span>
+                    <span className="tnum text-[11.5px] text-muted-foreground">{p.qty} @ ₹{fmt(p.avgPrice)} → ₹{fmt(p.exitPrice)}</span>
+                    <span className={cn("tnum ml-auto text-[12.5px] font-semibold", p.gain >= 0 ? "text-emerald-400" : "text-red-400")}>
+                      {p.gain >= 0 ? "+" : "−"}{fmtIN(Math.abs(p.gain))}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div>
+            <p className="px-5 pt-3.5 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">Trade log</p>
+            {(sim.tradeLog ?? []).length === 0 ? (
+              <p className="px-5 py-6 text-[12.5px] text-muted-foreground">Your BUY / SELL / HOLD actions appear here.</p>
+            ) : (
+              <ul className="divide-y divide-border">
+                {(sim.tradeLog ?? []).slice(0, 6).map((t, i) => (
+                  <li key={`${t.sym}-${t.time}-${i}`} className="flex items-center gap-3 px-5 py-2.5">
+                    <span className={cn(
+                      "w-12 rounded px-1.5 py-0.5 text-center text-[10px] font-semibold",
+                      t.side === "buy" ? "bg-emerald-500/15 text-emerald-300" : t.side === "sell" ? "bg-red-500/15 text-red-300" : "bg-secondary text-muted-foreground",
+                    )}>
+                      {t.side.toUpperCase()}
+                    </span>
+                    <span className="text-[12.5px] font-medium text-foreground">{t.sym}</span>
+                    <span className="tnum text-[11.5px] text-muted-foreground">{t.qty} @ ₹{fmt(t.price)}</span>
+                    <span className="tnum ml-auto text-[11px] text-muted-foreground">{t.time}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
       </section>
     </div>
   );

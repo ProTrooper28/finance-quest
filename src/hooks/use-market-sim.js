@@ -2,26 +2,33 @@
    trade execution and reward bookkeeping. Pure math lives in
    utils/market-engine.js. */
 
-import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
+import { useCallback, useEffect, useMemo, useReducer } from "react";
 
 import { MISSIONS, ACHIEVEMENTS } from "@/data/market";
 import {
   initStocks, mulberry32, nextNews, applyNews, tickPrices, decaySentiment,
   portfolioValue, riskScore, diversificationScore, countSectors, scenarioParams,
-  evaluateMissions, tradeFeedback, sessionReport,
+  evaluateMissions, tradeFeedback, sessionReport, styleParams,
 } from "@/utils/market-engine";
 
 const START_CASH = 1_000_000;
 const TICK_MS = 2500;
-const BASE_SEED = 20260922;
 const MAX_NEWS = 14;
 
 const initialMissions = MISSIONS.map((m) => ({ ...m, progress: 0, done: false }));
 
-function makeSnapshot(stocks, holdings, cash, nifty, startNifty, trades) {
+/* Fresh session seed — the RNG seed lives in state so the pure reducer can
+   derive every tick deterministically without touching module globals. */
+function freshSeed() {
+  return (BASE_SEED + Date.now() + Math.floor(Math.random() * 1e6)) >>> 0;
+}
+const BASE_SEED = 20260922;
+
+function makeSnapshot(stocks, holdings, cash, nifty, startNifty, trades, state) {
   const { invested, total } = portfolioValue(stocks, holdings, cash);
   const startValue = START_CASH;
   const profitPct = ((total - startValue) / startValue) * 100;
+  const risk = riskScore(stocks, holdings, total, cash);
   return {
     invested,
     total,
@@ -31,6 +38,9 @@ function makeSnapshot(stocks, holdings, cash, nifty, startNifty, trades) {
     sectors: countSectors(holdings),
     beatNifty: profitPct > niftyDeltaPct(startNifty, nifty),
     trades,
+    crashSurvived: (state?.crashTicks ?? 0) > 0 && profitPct > -12,
+    earningsBuys: state?.earningsBuys ?? 0,
+    lowRisk: holdings.length >= 2 && risk < 45,
   };
 }
 
@@ -38,12 +48,48 @@ function niftyDeltaPct(startNifty, nifty) {
   return ((nifty - startNifty) / startNifty) * 100;
 }
 
+/* --------------------------- simulated clock ------------------------------ */
+
+const INTRADAY_STEPS = ["09:15", "09:45", "10:00", "10:45", "11:30", "12:15", "01:00", "01:45", "02:30", "03:15", "03:30"];
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+function initialClock(mode) {
+  if (mode === "longterm") return { kind: "month", label: MONTHS[0], index: 0, day: 1 };
+  if (mode === "monthly") return { kind: "day", label: "Week 1", index: 0, day: 1 };
+  if (mode === "weekly") return { kind: "day", label: "Mon", index: 0, day: 1 };
+  return { kind: "time", label: INTRADAY_STEPS[0], index: 0 };
+}
+
+/** Advance the simulated clock by one tick. */
+function advanceClock(clock, mode, tickCount) {
+  if (mode === "longterm") {
+    const every = 10;
+    if (tickCount % every !== 0) return clock;
+    const nextIndex = Math.min(clock.index + 1, 11);
+    return { ...clock, index: nextIndex, label: MONTHS[nextIndex] };
+  }
+  if (mode === "monthly") {
+    const every = 8;
+    if (tickCount % every !== 0) return clock;
+    const nextIndex = Math.min(clock.index + 1, 3);
+    return { ...clock, index: clock.index + 1 >= 4 ? clock.index : nextIndex, label: `Week ${Math.min(clock.index + 2, 4)}` };
+  }
+  if (mode === "weekly") {
+    if (tickCount % 6 !== 0) return clock;
+    const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+    const nextIndex = Math.min(clock.index + 1, 4);
+    return { ...clock, index: nextIndex, label: days[nextIndex] };
+  }
+  /* intraday: step every 2 ticks */
+  const idx = Math.min(Math.floor(tickCount / 2), INTRADAY_STEPS.length - 1);
+  return { ...clock, index: idx, label: INTRADAY_STEPS[idx] };
+}
+
 /** The whole simulator state, driven from one reducer. */
 export function useMarketSim() {
-  const seedRef = useRef(BASE_SEED + Math.floor(Math.random() * 1e6));
-
   const [state, dispatch] = useReducer(reducer, undefined, () => ({
-    stocks: initStocks(mulberry32(seedRef.current)),
+    seed: freshSeed(),
+    stocks: initStocks(mulberry32(freshSeed())),
     cash: START_CASH,
     holdings: [],
     news: [],
@@ -51,6 +97,15 @@ export function useMarketSim() {
     highlighted: null, // news uid → highlight affected stocks
     selected: null, // stock symbol for the trade panel
     scenarios: { activeId: "live", replay: null },
+    timeMode: "intraday",
+    style: "swing",
+    clock: initialClock("intraday"),
+    history: [],
+    closedPositions: [],
+    tradeLog: [],
+    crashTicks: 0,
+    earningsBuys: 0,
+    realized: 0,
     missions: initialMissions,
     achievements: ACHIEVEMENTS.map((a) => ({ ...a, earned: false })),
     xp: 0,
@@ -87,7 +142,7 @@ export function useMarketSim() {
   const closePanel = useCallback(() => dispatch({ type: "closePanel" }), []);
   const highlightNews = useCallback((uid) => dispatch({ type: "highlight", uid }), []);
   const clearHighlight = useCallback(() => dispatch({ type: "clearHighlight" }), []);
-  const startSession = useCallback((scenarioId, replayId) => dispatch({ type: "start", scenarioId, replayId }), []);
+  const startSession = useCallback((scenarioId, replayId, timeMode, style) => dispatch({ type: "start", scenarioId, replayId, timeMode, style }), []);
   const clearFeedback = useCallback(() => dispatch({ type: "clearFeedback" }), []);
   const clearReport = useCallback(() => dispatch({ type: "clearReport" }), []);
   const endSession = useCallback(() => dispatch({ type: "end" }), []);
@@ -110,16 +165,18 @@ function reducer(state, action) {
 
     case "tick": {
       const { driftAll, shockScale, newsEvery } = scenarioParams(state.scenarios.activeId);
-      const rng = mulberry32(seedRef.current + state.tickCount * 7919);
-      let stocks = tickPrices(state.stocks, rng, driftAll);
+      const style = styleParams(state.style);
+      const rng = mulberry32((state.seed + state.tickCount * 7919) >>> 0);
+      let stocks = tickPrices(state.stocks, rng, driftAll * style.volatility);
       const tickCount = state.tickCount + 1;
 
       let news = state.news;
       let recentNewsIds = state.recentNewsIds;
       let toasts = state.toasts;
 
-      /* Event news on cadence */
-      if (tickCount % newsEvery === 0) {
+      /* Event news on cadence (investment style scales frequency) */
+      const newsCadence = Math.max(2, Math.round(newsEvery / style.newsRate));
+      if (tickCount % newsCadence === 0) {
         const raw = nextNews(rng, recentNewsIds);
         const item = { ...raw, headline: scaleHeadline(raw, state.scenarios.activeId) };
         stocks = applyNewsWithScale(stocks, item, shockScale);
@@ -129,9 +186,11 @@ function reducer(state, action) {
       }
 
       /* Random system events every ~35s (14 ticks) */
+      let crashTicks = state.crashTicks ?? 0;
       if (tickCount % 14 === 0) {
         const ev = pickEvent(rng);
         stocks = applySystemEvent(stocks, ev, rng, shockScale);
+        if (ev.kind === "Global Crisis") crashTicks += 1;
         toasts = [...toasts, { id: `ev-${tickCount}`, kind: "event", text: `${ev.kind} — market reacting`, tick: tickCount }].slice(-3);
       }
 
@@ -140,10 +199,13 @@ function reducer(state, action) {
       const nifty = Math.round(24850 * avg);
       stocks = decaySentiment(stocks);
 
+      /* Simulated clock advances every tick */
+      const clock = advanceClock(state.clock, state.timeMode, tickCount);
+
       /* Missions */
       const holdings = state.holdings;
       const { cash } = state;
-      const snapshot = makeSnapshot(stocks, holdings, cash, nifty, state.startNifty, state.trades);
+      const snapshot = makeSnapshot(stocks, holdings, cash, nifty, state.startNifty, state.trades, state);
       const { missions, justCompleted } = evaluateMissions(state.missions, snapshot);
       let xp = state.xp;
       let coins = state.coins;
@@ -159,7 +221,7 @@ function reducer(state, action) {
       /* Toasts live for ~3 ticks */
       const liveToasts = toasts.filter((t) => tickCount - (t.tick ?? tickCount) < 3).slice(-3);
 
-      return { ...state, stocks, news, recentNewsIds, toasts: liveToasts, tickCount, nifty, missions, xp, coins };
+      return { ...state, stocks, news, recentNewsIds, toasts: liveToasts, tickCount, nifty, missions, xp, coins, clock, crashTicks };
     }
 
     case "dismissToast":
@@ -195,6 +257,11 @@ function reducer(state, action) {
       let newsTrades = state.newsTrades;
       let decisions = state.decisions;
 
+      let earningsBuys = state.earningsBuys ?? 0;
+      let tradeLog = state.tradeLog ?? [];
+      let closedPositions = state.closedPositions ?? [];
+      let realized = state.realized ?? 0;
+
       if (side === "buy") {
         cash -= cost;
         const existing = holdings.find((h) => h.sym === s.sym);
@@ -205,6 +272,9 @@ function reducer(state, action) {
                 : h,
             )
           : [...holdings, { sym: s.sym, name: s.name, sector: s.sector, qty, avgPrice: s.price }];
+        if ((state.news ?? []).some((n) => n.cat === "Earnings" && n.impact === "bullish" && n.tickers.includes(s.sym))) {
+          earningsBuys += 1;
+        }
       } else if (side === "sell") {
         const existing = holdings.find((h) => h.sym === s.sym);
         if (!existing || existing.qty < qty) return state;
@@ -212,6 +282,11 @@ function reducer(state, action) {
         const gain = (s.price - existing.avgPrice) * qty;
         if (gain < 0) mistakes += 1;
         cash += proceeds;
+        realized += gain;
+        closedPositions = [
+          { sym: s.sym, name: s.name, sector: s.sector, qty, avgPrice: existing.avgPrice, exitPrice: s.price, gain, at: state.clock?.label ?? "—" },
+          ...closedPositions,
+        ];
         holdings = holdings
           .map((h) => (h.sym === s.sym ? { ...h, qty: h.qty - qty } : h))
           .filter((h) => h.qty > 0);
@@ -219,6 +294,8 @@ function reducer(state, action) {
       } else {
         decisions += 1;
       }
+
+      tradeLog = [{ sym: s.sym, side, qty, price: s.price, cost, at: state.clock?.label ?? "now", time: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) }, ...tradeLog].slice(0, 30);
 
       const trades = state.trades + 1;
       if (side !== "hold") newsTrades = state.newsTrades + (s.sentiment >= 62 || s.sentiment <= 40 ? 1 : 0);
@@ -249,7 +326,7 @@ function reducer(state, action) {
       if (trades >= 5 && risk < 45) unlock("risk-manager");
       if (holdings.length === 0 && side === "sell") unlock("market-expert"); // fully exited a session
 
-      const snapshot = makeSnapshot(state.stocks, holdings, cash, state.nifty, state.startNifty, trades);
+      const snapshot = makeSnapshot(state.stocks, holdings, cash, state.nifty, state.startNifty, trades, { ...state, earningsBuys });
       const { missions, justCompleted } = evaluateMissions(state.missions, snapshot);
       if (justCompleted.length) {
         for (const id of justCompleted) {
@@ -277,6 +354,10 @@ function reducer(state, action) {
         achievements,
         xp,
         missions,
+        earningsBuys,
+        tradeLog,
+        closedPositions,
+        realized,
         feedback: { side, sym: s.sym, name: s.name, qty, cost, at: Date.now(), ...feedback },
       };
     }
@@ -292,6 +373,13 @@ function reducer(state, action) {
         mistakes: state.mistakes,
         startNifty: state.startNifty,
         nifty: state.nifty,
+        closedPositions: state.closedPositions ?? [],
+        realized: state.realized ?? 0,
+        achievements: state.achievements,
+        startCash: state.cash + state.holdings.reduce((acc, h) => {
+          const s = state.stocks.find((x) => x.sym === h.sym);
+          return acc + (s?.price ?? h.avgPrice) * h.qty;
+        }, 0) - 0,
       });
       return { ...state, running: false, marketOpen: false, report };
     }
@@ -312,13 +400,23 @@ function reducer(state, action) {
 function startSession(state, action) {
   const scenarioId = action.scenarioId ?? "live";
   const replay = action.replayId ?? null;
-  const rng = mulberry32((seedRef.current + Date.now()) >>> 0);
+  const seed = freshSeed();
+  const rng = mulberry32(seed);
   const stocks = initStocks(rng);
   const first = nextNews(rng, []);
   return {
     ...state,
+    seed,
     stocks,
     scenarios: { activeId: scenarioId, replay },
+    timeMode: action.timeMode ?? state.timeMode ?? "intraday",
+    style: action.style ?? state.style ?? "day",
+    clock: initialClock(action.timeMode ?? state.timeMode ?? "intraday"),
+    history: [],
+    closedPositions: [],
+    tradeLog: [],
+    crashTicks: 0,
+    earningsBuys: 0,
     cash: START_CASH,
     holdings: [],
     news: [first],
@@ -343,7 +441,7 @@ function startSession(state, action) {
     startNifty: 24850,
     startValue: START_CASH,
     sessionStartedAt: Date.now(),
-    toasts: [{ id: `start-${Date.now()}`, kind: "session", text: replay ? `Historical replay started — ${replay}` : `${scenarioId} market started` }],
+    toasts: [{ id: `start-${Date.now()}`, kind: "session", text: replay ? `Historical replay started — ${replay}` : `${scenarioId} market started`, tick: 0 }],
   };
 }
 

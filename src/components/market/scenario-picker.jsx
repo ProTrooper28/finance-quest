@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { History, Lock, Star, X } from "lucide-react";
+import { History, Star, X } from "lucide-react";
 
 import { SCENARIOS, HISTORICAL_REPLAYS, STAR } from "@/data/market";
-import { useNavigate } from "@/utils/router";
 import { cn } from "@/utils";
 
 const EASE = [0.23, 0.86, 0.44, 1];
@@ -103,9 +102,7 @@ export function ScenarioPicker({ open, onClose, activeId, onStart }) {
                     {s.xp ? <span className="tnum font-medium text-blue-300">+{s.xp.toLocaleString("en-IN")} XP</span> : null}
                   </div>
                   {active ? (
-                    <p className="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-blue-300">
-                      <Lock className="size-3" /> Currently active — restart to reset
-                    </p>
+                    <p className="mt-2 text-[11px] font-medium text-blue-300">Currently active — restarting resets the market</p>
                   ) : null}
                 </motion.button>
               );

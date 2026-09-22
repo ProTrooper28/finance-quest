@@ -183,6 +183,19 @@ export function scenarioParams(id) {
   };
 }
 
+/* --------------------------- investment styles ---------------------------- */
+
+const STYLE_PARAMS = {
+  day: { volatility: 1.6, newsRate: 1.8, xpMult: 1.2 },
+  swing: { volatility: 1.0, newsRate: 1.0, xpMult: 1.1 },
+  investor: { volatility: 0.6, newsRate: 0.6, xpMult: 1.0 },
+  learning: { volatility: 0.75, newsRate: 0.9, xpMult: 1.0 },
+};
+
+export function styleParams(id) {
+  return STYLE_PARAMS[id] ?? STYLE_PARAMS.swing;
+}
+
 /* ------------------------------- missions -------------------------------- */
 
 /**
@@ -200,6 +213,9 @@ export function evaluateMissions(missions, snapshot) {
       case "profitPct": progress = Math.max(0, snapshot.profitPct); break;
       case "beatNifty": progress = snapshot.beatNifty ? 1 : 0; break;
       case "trades": progress = Math.min(snapshot.trades, 1); break;
+      case "crashSurvived": progress = snapshot.crashSurvived ? 1 : 0; break;
+      case "earningsBuys": progress = Math.min(snapshot.earningsBuys ?? 0, 1); break;
+      case "lowRisk": progress = snapshot.lowRisk ? 1 : 0; break;
       default: progress = 0;
     }
     const value = Math.min(progress, m.target);
@@ -250,7 +266,7 @@ export function tradeFeedback(stock, side, qty, cost, ctx) {
 /* ------------------------------ session report --------------------------- */
 
 /** Build the end-of-session report card. */
-export function sessionReport({ startValue, stocks, holdings, cash, missions, decisions, mistakes, startNifty, nifty }) {
+export function sessionReport({ startValue, stocks, holdings, cash, missions, decisions, mistakes, startNifty, nifty, closedPositions = [], realized = 0, achievements = [], startCash }) {
   const { total } = portfolioValue(stocks, holdings, cash);
   const retPct = ((total - startValue) / startValue) * 100;
   const niftyRet = ((nifty - startNifty) / startNifty) * 100;
@@ -258,6 +274,15 @@ export function sessionReport({ startValue, stocks, holdings, cash, missions, de
   const div = diversificationScore(holdings, total, stocks);
   const totalXp = missions.filter((m) => m.done).reduce((s, m) => s + m.xp, 0);
   const totalCoins = missions.filter((m) => m.done).reduce((s, m) => s + m.coins, 0);
+
+  /* Trade quality from closed positions */
+  const wins = closedPositions.filter((p) => p.gain > 0);
+  const losses = closedPositions.filter((p) => p.gain <= 0);
+  const winRate = closedPositions.length ? Math.round((wins.length / closedPositions.length) * 100) : 0;
+  const sorted = [...closedPositions].sort((a, b) => b.gain - a.gain);
+  const best = sorted[0] ?? null;
+  const worst = sorted[sorted.length - 1] && sorted.length > 1 ? sorted[sorted.length - 1] : null;
+  const finalCash = startCash ?? cash;
 
   const feedback = [];
   if (retPct > niftyRet) feedback.push(`You beat the NIFTY (${retPct.toFixed(1)}% vs ${niftyRet.toFixed(1)}%). Overconfidence is the risk now — size positions carefully.`);
@@ -267,12 +292,22 @@ export function sessionReport({ startValue, stocks, holdings, cash, missions, de
   if (decisions && mistakes !== undefined) feedback.push(`You made ${decisions} decisive calls and ${mistakes} clear mistakes — reviewing the debriefs is where the learning compounds.`);
 
   return {
+    finalValue: total,
+    finalCash: finalCash,
     totalReturn: retPct,
     niftyReturn: niftyRet,
     xp: totalXp,
     coins: totalCoins,
     decisions: decisions ?? 0,
     mistakes: mistakes ?? 0,
+    realized,
+    winRate,
+    trades: closedPositions.length,
+    bestTrade: best ? { sym: best.sym, gain: best.gain } : null,
+    worstTrade: worst ? { sym: worst.sym, gain: worst.gain } : null,
+    missionsDone: missions.filter((m) => m.done).length,
+    missionsTotal: missions.length,
+    achievementsUnlocked: achievements.filter((a) => a.earned).map((a) => a.name),
     risk,
     diversification: div,
     feedback,

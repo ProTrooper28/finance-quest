@@ -115,6 +115,7 @@ export function MarketLeaderboard({ xp }) {
 export function SessionReportModal({ report, onClose }) {
   if (!report) return null;
   const up = report.totalReturn >= 0;
+  const inr = (n) => `₹${Math.round(n ?? 0).toLocaleString("en-IN")}`;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button type="button" aria-label="Close" onClick={onClose} className="absolute inset-0 bg-black/70 backdrop-blur-[3px]" />
@@ -122,29 +123,44 @@ export function SessionReportModal({ report, onClose }) {
         initial={{ opacity: 0, y: 20, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.35, ease: EASE }}
-        className="relative w-full max-w-lg overflow-hidden rounded-[20px] border border-border bg-background shadow-2xl"
+        className="relative max-h-[88vh] w-full max-w-xl overflow-y-auto rounded-[20px] border border-border bg-background shadow-2xl"
       >
         <div className="border-b border-border px-6 py-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-blue-300">Session report</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-blue-300">Session summary</p>
           <h2 className={cn("tnum mt-1 text-3xl font-bold tracking-tight", up ? "text-emerald-400" : "text-red-400")}>
             {up ? "+" : "−"}{Math.abs(report.totalReturn).toFixed(2)}%
           </h2>
           <p className="tnum mt-0.5 text-[12.5px] text-muted-foreground">
-            NIFTY returned {report.niftyReturn >= 0 ? "+" : ""}{report.niftyReturn.toFixed(2)}% — you {report.totalReturn >= report.niftyReturn ? "beat" : "trailed"} the index.
+            Final value {inr(report.finalValue)} · NIFTY {report.niftyReturn >= 0 ? "+" : ""}{report.niftyReturn.toFixed(2)}% — you {report.totalReturn >= report.niftyReturn ? "beat" : "trailed"} the index.
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-2.5 p-5 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2.5 p-5 sm:grid-cols-4">
+          <Stat label="Final portfolio" value={inr(report.finalValue)} />
+          <Stat label="Cash remaining" value={inr(report.finalCash)} />
+          <Stat label="Realized P/L" value={`${(report.realized ?? 0) >= 0 ? "+" : "−"}${inr(Math.abs(report.realized ?? 0)).slice(1)}`} tone={(report.realized ?? 0) >= 0 ? "text-emerald-400" : "text-red-400"} />
+          <Stat label="Win rate" value={`${report.winRate ?? 0}%`} />
+          <Stat label="Best trade" value={report.bestTrade ? `${report.bestTrade.sym} +${inr(report.bestTrade.gain).slice(1)}` : "—"} tone="text-emerald-400" />
+          <Stat label="Worst trade" value={report.worstTrade ? `${report.worstTrade.sym} −${inr(Math.abs(report.worstTrade.gain)).slice(1)}` : "—"} tone="text-red-400" />
+          <Stat label="Risk score" value={`${report.risk}`} tone={report.risk <= 50 ? "text-emerald-400" : "text-amber-300"} />
+          <Stat label="Diversification" value={`${report.diversification}`} />
+          <Stat label="Missions" value={`${report.missionsDone ?? 0}/${report.missionsTotal ?? 0}`} />
           <Stat label="XP earned" value={fmtIN(report.xp)} tone="text-blue-300" />
           <Stat label="Coins earned" value={fmtIN(report.coins)} tone="text-amber-300" />
-          <Stat label="Correct decisions" value={String(report.decisions)} tone="text-emerald-400" />
-          <Stat label="Mistakes" value={String(report.mistakes)} tone="text-red-400" />
-          <Stat label="Risk management" value={`${report.risk}`} tone={report.risk <= 50 ? "text-emerald-400" : "text-amber-300"} />
-          <Stat label="Diversification" value={`${report.diversification}`} />
+          <Stat label="Correct vs mistakes" value={`${report.decisions} / ${report.mistakes}`} />
         </div>
 
+        {report.achievementsUnlocked?.length ? (
+          <div className="px-5 pb-1">
+            <div className="rounded-xl border border-amber-500/25 bg-amber-500/[0.07] px-4 py-3">
+              <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-amber-300">Achievements unlocked</p>
+              <p className="mt-1 text-[13px] font-medium text-foreground">{report.achievementsUnlocked.join(" · ")}</p>
+            </div>
+          </div>
+        ) : null}
+
         <div className="border-t border-border px-5 pb-5">
-          <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">AI feedback</p>
+          <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">AI summary</p>
           <ul className="mt-2 space-y-1.5">
             {report.feedback.map((f, i) => (
               <li key={i} className="text-[12.5px] leading-relaxed text-foreground/90">· {f}</li>
@@ -152,13 +168,12 @@ export function SessionReportModal({ report, onClose }) {
           </ul>
           <div className="mt-4 flex items-center justify-between rounded-xl border border-blue-500/25 bg-blue-500/[0.07] px-4 py-3">
             <div>
-              <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-blue-300">Suggested next challenge</p>
+              <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-blue-300">Recommended next simulation</p>
               <p className="mt-0.5 text-[13px] font-medium text-foreground">{report.next}</p>
             </div>
             <Zap className="size-4 flex-none text-blue-300" />
           </div>
-          <div className="mt-4 flex justify-end gap-2">
-            <Coins className="hidden" />
+          <div className="mt-4 flex justify-end">
             <button
               type="button"
               onClick={onClose}
