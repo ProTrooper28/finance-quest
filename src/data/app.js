@@ -19,8 +19,8 @@ export const NAV_SECTIONS = [
     label: "Learning",
     items: [
       { to: "/learn", label: "Learn", icon: "BookOpen" },
-      { to: "/simulations", label: "Simulations", icon: "Gamepad2" },
-      { to: "/market", label: "Market Simulator", icon: "CandlestickChart" },
+      { to: "/simulations", label: "Challenges", icon: "Gamepad2" },
+      { to: "/market", label: "Stock Market", icon: "CandlestickChart" },
     ],
   },
   {
@@ -35,6 +35,7 @@ export const NAV_SECTIONS = [
     label: "You",
     items: [
       { to: "/achievements", label: "Achievements", icon: "Trophy" },
+      { to: "/leaderboard", label: "Leaderboard", icon: "Award" },
       { to: "/profile", label: "Profile", icon: "UserRound" },
       { to: "/settings", label: "Settings", icon: "Settings" },
     ],
@@ -102,7 +103,7 @@ export const quickActions = [
   { id: "lesson", label: "Start a lesson", to: "/learn", icon: "BookOpen" },
   { id: "simulation", label: "Play a simulation", to: "/simulations", icon: "Gamepad2" },
   { id: "mentor", label: "Open AI Mentor", to: "/mentor", icon: "MessageSquare" },
-  { id: "assessment", label: "Continue assessment", to: "/assessment", icon: "ClipboardCheck" },
+  { id: "assessment", label: "View assessment results", to: "/result", icon: "ClipboardCheck" },
 ];
 
 export const activity = [

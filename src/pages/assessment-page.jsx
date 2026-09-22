@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, SkipForward } from "lucide-react";
 
 import { QuestionCard } from "@/components/assessment/question-card";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import { useAssessmentContext } from "@/hooks/assessment-context";
 
 const ease = [0.23, 0.86, 0.44, 1];
@@ -11,7 +12,7 @@ const ease = [0.23, 0.86, 0.44, 1];
 export function AssessmentPage() {
   const navigate = useNavigate();
   const assessment = useAssessmentContext();
-  const { step, total, question, answers, progress, answeredCurrent, setAnswer, next, back, skip, finish } = assessment;
+  const { step, total, question, answers, progress, answeredCurrent, setAnswer, next, back, skip, finish, skipAll } = assessment;
 
   const isLast = step === total - 1;
 
@@ -22,6 +23,15 @@ export function AssessmentPage() {
     } else {
       next();
     }
+  };
+
+  /* Skip the entire assessment — defaults everywhere, straight to the app. */
+  const handleSkipAll = () => {
+    skipAll();
+    toast("Assessment skipped", {
+      description: "We set sensible defaults. You can retake it anytime from your profile.",
+    });
+    navigate("/dashboard");
   };
 
   const value = answers[question.id];
@@ -64,6 +74,14 @@ export function AssessmentPage() {
           </Button>
         </div>
       </div>
+
+      <button
+        type="button"
+        onClick={handleSkipAll}
+        className="mx-auto mt-6 block text-xs font-medium text-white/35 transition hover:text-white/80"
+      >
+        Skip the full assessment
+      </button>
     </div>
   );
 }

@@ -5,6 +5,12 @@ import { analyzeAnswers } from "@/utils/assessment";
 import { storage } from "@/utils";
 
 const STORAGE_KEY = "finquest-assessment-v1";
+const COMPLETED_KEY = "finquest-assessment-completed-v1";
+
+/** True when the user already finished (or skipped) the assessment. */
+export function isAssessmentCompleted() {
+  return storage.get(COMPLETED_KEY, false) === true;
+}
 
 /**
  * Owns the assessment lifecycle: answers per question, navigation,
@@ -72,12 +78,39 @@ export function useAssessment() {
     };
     setResult(payload);
     storage.set("finquest-result-v1", payload);
+    storage.set(COMPLETED_KEY, true);
     return payload;
   }, [answers]);
+
+  /**
+   * Skip the whole assessment: fills every answer with safe defaults,
+   * stores a generic result, and marks the assessment as completed so the
+   * user isn't routed back here on the next visit.
+   */
+  const skipAll = useCallback(() => {
+    const defaults = {};
+    for (const q of questions) {
+      defaults[q.id] = q.kind === "multi" ? [] : q.options[0]?.value;
+    }
+    const analysis = analyzeAnswers(defaults);
+    const payload = {
+      ...analysis,
+      name: storage.get("finquest-user", {})?.name ?? "",
+      skipped: true,
+      completedAt: new Date().toISOString(),
+    };
+    setResult(payload);
+    storage.set("finquest-result-v1", payload);
+    storage.set(COMPLETED_KEY, true);
+    storage.clear(STORAGE_KEY);
+    setState({ step: 0, answers: {} });
+    return payload;
+  }, []);
 
   const reset = useCallback(() => {
     storage.clear(STORAGE_KEY);
     storage.clear("finquest-result-v1");
+    storage.clear(COMPLETED_KEY);
     setState({ step: 0, answers: {} });
     setResult(null);
   }, []);
@@ -95,6 +128,7 @@ export function useAssessment() {
     back,
     skip,
     finish,
+    skipAll,
     result,
     reset,
   };

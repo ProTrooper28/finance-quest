@@ -17,6 +17,7 @@ import { Route as BudgetPlannerRouteImport } from './routes/budget-planner'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as FraudLabRouteImport } from './routes/fraud-lab'
 import { Route as HomeRouteImport } from './routes/home'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as LearnRouteImport } from './routes/learn'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MarketRouteImport } from './routes/market'
@@ -66,6 +67,11 @@ const FraudLabRoute = FraudLabRouteImport.update({
 const HomeRoute = HomeRouteImport.update({
   id: '/home',
   path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LearnRoute = LearnRouteImport.update({
@@ -128,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/fraud-lab': typeof FraudLabRoute
   '/home': typeof HomeRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/learn': typeof LearnRoute
   '/login': typeof LoginRoute
   '/market': typeof MarketRoute
@@ -148,6 +155,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/fraud-lab': typeof FraudLabRoute
   '/home': typeof HomeRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/learn': typeof LearnRoute
   '/login': typeof LoginRoute
   '/market': typeof MarketRoute
@@ -169,6 +177,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/fraud-lab': typeof FraudLabRoute
   '/home': typeof HomeRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/learn': typeof LearnRoute
   '/login': typeof LoginRoute
   '/market': typeof MarketRoute
@@ -191,6 +200,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/fraud-lab'
     | '/home'
+    | '/leaderboard'
     | '/learn'
     | '/login'
     | '/market'
@@ -211,6 +221,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/fraud-lab'
     | '/home'
+    | '/leaderboard'
     | '/learn'
     | '/login'
     | '/market'
@@ -231,6 +242,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/fraud-lab'
     | '/home'
+    | '/leaderboard'
     | '/learn'
     | '/login'
     | '/market'
@@ -252,6 +264,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   FraudLabRoute: typeof FraudLabRoute
   HomeRoute: typeof HomeRoute
+  LeaderboardRoute: typeof LeaderboardRoute
   LearnRoute: typeof LearnRoute
   LoginRoute: typeof LoginRoute
   MarketRoute: typeof MarketRoute
@@ -320,6 +333,13 @@ declare module '@tanstack/react-router' {
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/learn': {
@@ -404,6 +424,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   FraudLabRoute: FraudLabRoute,
   HomeRoute: HomeRoute,
+  LeaderboardRoute: LeaderboardRoute,
   LearnRoute: LearnRoute,
   LoginRoute: LoginRoute,
   MarketRoute: MarketRoute,

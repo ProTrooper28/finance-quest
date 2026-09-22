@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Bell, Coins, Menu, Search, Settings, Zap } from "lucide-react";
+import { Bell, Coins, Flame, Menu, Search, Settings, Zap } from "lucide-react";
 
 import { Link, useNavigate } from "@/utils/router";
 
@@ -43,6 +43,13 @@ export function Navbar({ onOpenMobile }) {
           <span className="mx-1 h-3.5 w-px bg-border" />
           <Coins className="size-3.5 text-amber-300" />
           <span className="tnum text-[13px] font-semibold text-foreground">480</span>
+        </div>
+
+        {/* Daily streak */}
+        <div className="hidden items-center gap-1.5 rounded-lg border border-orange-500/25 bg-orange-500/10 px-2.5 py-1.5 md:flex">
+          <Flame className="size-3.5 text-orange-300" />
+          <span className="tnum text-[13px] font-semibold text-foreground">8</span>
+          <span className="text-[11px] text-muted-foreground">day streak</span>
         </div>
 
         {/* Level */}
